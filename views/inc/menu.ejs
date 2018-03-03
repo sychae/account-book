@@ -1,0 +1,50 @@
+﻿<style>
+  <!--
+<% if(_isTopMenu) { %>
+  .navi_menu>div{
+    display:inline-block;
+	  margin:5px;
+	  width:auto;
+	  padding : 0px 10px;
+	  height:28px;
+	  line-height:28px;
+	  text-align:center;
+	  font-size:20px;
+	  border:1px solid #000;
+	  cursor:pointer;
+	  user-select: none;
+  }
+
+ <% } else { %>
+  .navi_menu>div{
+	  margin:5px;
+	  width:300px;
+	  height:40px;
+	  line-height:40px;
+	  text-align:center;
+	  font-size:24px;
+	  border:1px solid #000;
+	  cursor:pointer;
+	  user-select: none;
+  }
+<% } %>
+  .navi_menu>div:hover{
+	background-color:#ccc;
+  }
+  .navi_menu>div:active{
+	 background-color:#ff0;
+  }
+   .navi_menu>div.on{
+    background-color:#333;
+    color:#fff;
+   }
+--></style>
+<div class="navi_menu">
+	<div onclick="javascript:document.location.href='/inout/';" <%if(_menuDiv=="inout"){%>class="on"<%}%>>입출금</div>
+	<div onclick="javascript:document.location.href='/inout/classfy.do';" <%if(_menuDiv=="inout_classfy"){%>class="on"<%}%>>입출금 분류</div>
+	<div onclick="javascript:document.location.href='/card/use.do';" <%if(_menuDiv=="card_use"){%>class="on"<%}%>>카드사용내역</div>
+	<div onclick="javascript:document.location.href='/bankbook/';" <%if(_menuDiv=="bankbook"){%>class="on"<%}%>>통장관리</div>
+	<div onclick="javascript:document.location.href='/card/';" <%if(_menuDiv=="card"){%>class="on"<%}%>>카드관리</div>
+	<div onclick="javascript:document.location.href='/memo/';" <%if(_menuDiv=="memo"){%>class="on"<%}%>>메모/일정</div>
+	<div onclick="javascript:document.location.href='/logout.do';" <%if(_menuDiv=="account"){%>class="on"<%}%>>로그아웃</div>
+</div>

@@ -1,0 +1,20 @@
+﻿<% include ./inc/start.ejs %>
+<!DOCTYPE html>
+<html>
+<head>
+<% include ./inc/header.ejs %>
+<style>
+#wrap{
+	height:100%;
+	display : flex;
+	align-items : center;
+	justify-content: center;
+}
+</style>
+</head>
+<body>
+	<div id="wrap">
+		<%- include("./inc/menu.ejs",{_isTopMenu:false, _menuDiv:""}) %>
+	</div>
+</body>
+</html>

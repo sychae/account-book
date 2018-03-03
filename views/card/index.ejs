@@ -1,0 +1,416 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<% include ../inc/header.ejs %>
+<script type="text/javascript" src="/js/common.js"></script>
+<script type="text/javascript" src="/js/jquery-3.2.1.min.js"></script>
+<style>
+#wrap{
+	height:100%;
+	text-align:center;
+}
+.tbl{
+	width:100%;
+	margin:auto;
+	padding:0px;
+	margin:0px;
+}
+
+
+.tbl td{
+	text-align:center;
+	height:40px;
+	vertical-align:middle;
+	border-left:1px solid #000;
+	border-bottom:1px solid #000;
+}
+.tbl td:first-child{
+	border-left:0px solid #000;
+}
+td.td_bank{width:120px;}
+
+td.td_name{text-align:left;}
+td.td_number{width:240px;}
+td.td_number input{font-size:18px;font-weight:bold;}
+
+td.td_payDay{width:60px;text-align:right;}
+td.td_startDay{width:60px;text-align:right;}
+
+td.td_bankbook{width:200px;text-align:left;}
+td.td_bankbook select{
+	width:100%;height:100%;border-width:0px;
+	   overflow:hidden; 
+    white-space:nowrap; 
+    text-overflow:ellipsis;
+}
+td.td_bankbook select option{    
+	width:100px;
+    text-overflow:ellipsis;
+    overflow:hidden;
+	}
+
+td.td_isUse{width:50px;}
+td.td_isCheckCard{width:50px;}
+
+td.td_issueDate{width:80px;}
+td.td_edit{width:50px;}
+
+
+
+
+td.td_desc{text-align:left;}
+
+.tbl thead td{
+	height:45px;
+	padding:5px;
+	font-weight:bold;
+	border-top:2px solid #000;
+	border-bottom:2px solid #000;
+}
+.tbl td input[type=text]{
+	width:100%;height:100%;
+	text-align:inherit;
+	border-width:0px;
+	padding:5px;
+	text-overflow: ellipsis;
+}
+.tbl td input[type=text]::placeholder{
+	color:#ccc;
+}
+
+    .tbl td.td_desc input[type=text] {
+        padding-left : 120px;
+    }
+.tbl td input[type=checkbox]{
+	width:25px;height:25px;
+	margin-top:6px;
+}
+
+.tbl textarea {
+	width:100%;
+	height:100%;
+	margin-top:0px;
+	border-width:0px;
+    resize: none;
+	background-color:rgba(0, 0, 0, 0);
+}
+
+
+.tbl.on .tr_desc{display:table-row;}
+.tbl .btn_save, .tbl .btn_cancel{display:none}
+
+.tbl.on .btn_save, .tbl.on .btn_cancel{display:inline-block;}
+.tbl.on .btn_edit{display:none;}
+
+    input:disabled, textarea:disabled, select:disabled {
+        color: rgb(84, 84, 84);
+        background-color: rgb(235, 235, 228);
+    }
+</style>
+<script type="text/javascript">
+
+var my_o = (function(){
+	var _my_o = {};
+	var _datas = <%- JSON.stringify(_datas) %>;
+	var _bankBooks = <%- JSON.stringify(_bankBooks) %>;
+	var _list_bnd, _tbl;
+	document.addEventListener("DOMContentLoaded", function(event) {
+		_list_bnd = document.getElementById("list_bnd");
+		_tbl = _list_bnd.querySelector(":scope>.tbl");
+		_tbl = _tbl.parentElement.removeChild(_tbl);
+		if(_datas.length==0){
+			_edit(_addFst(null));
+		}else{
+			for(var i=0; i<_datas.length; i++){
+				_addFst(_datas[i])
+			}
+		}
+	});
+	function _addFst(obj){
+		if(obj==null){
+			obj = {};
+		}
+		tbl = _list_bnd.insertBefore(_tbl.cloneNode(true), _list_bnd.firstChild);
+		tbl._obj = obj;
+
+
+		_setInputValue(tbl);
+		var btn_edit = tbl.querySelector(":scope .btn_edit");
+		var btn_save = tbl.querySelector(":scope .btn_save");
+		var btn_cancel = tbl.querySelector(":scope .btn_cancel");
+
+        btn_edit._tbl = btn_save._tbl = btn_cancel._tbl = tbl;
+
+
+
+        var iptPayDay = tbl.querySelector(":scope input[name=payDay]");
+        var iptStartDay = tbl.querySelector(":scope input[name=startDay]");
+
+        var iptIssueDate = tbl.querySelector(":scope input[name=issueDate]");
+
+        com_intIpt(iptPayDay, 1, 31);
+        com_intIpt(iptStartDay, 1, 31);
+        com_yyyymmdd(iptIssueDate);
+		return tbl;
+	}
+
+	function _setInputValue(tbl){
+		var obj = tbl._obj;
+
+		var iptid = tbl.querySelector(":scope input[name=objid]");
+		var ipts = tbl.querySelectorAll(":scope input, select");
+		for(var i=0; i<ipts.length; i++){
+			var ipt = ipts.item(i);
+
+			if(ipt.name=="bankbook"){
+				var sel = ipt;
+				var opt = document.createElement("option");
+				opt.value = "";
+				opt.innerHTML = "선택";
+				sel.appendChild(opt);
+
+				for(var j=0; j<_bankBooks.length; j++){
+					var bank = _bankBooks[j];
+					opt = document.createElement("option");
+					opt.value = bank._id;
+					opt.innerHTML = bank.name + "[" + bank.bank + "]";
+					sel.appendChild(opt);
+
+					opt.selected= (obj.bankbook==bank._id);
+					
+				}
+			}else if(ipt.name=="issueDate") ipt.value = com_dateToStr(obj.issueDate);
+			else if(ipt.type=="text" && obj[ipt.name]) ipt.value = obj[ipt.name];
+			else if(ipt.type=="checkbox") {
+
+				console.log("aa", ipt, ipt.name, obj[ipt.name], ipt.checked);
+                if (obj[ipt.name] == true) ipt.checked = true;
+                else if (obj[ipt.name] == false) ipt.checked = false;
+			}
+		}
+
+		if(obj._id) iptid.value = obj._id;
+	}
+	function _cancel(tbl){
+		if(!tbl) return;
+		var iptid = tbl.querySelector(":scope input[name=objid]");
+
+		if(iptid.value==""){
+			tbl.parentElement.removeChild(tbl);
+		}else{
+			tbl.classList.remove("on");
+			var ipts = tbl.querySelectorAll(":scope input, select");
+			for(var i=0; i<ipts.length; i++){
+				var ipt = ipts.item(i);
+				if(ipt.type!="hidden"){
+					ipt.disabled = true;
+				}
+			}
+			_setInputValue(tbl);
+
+		}
+	}
+	function _edit(tbl){
+		if(!tbl.classList.contains("on")){
+			tbl.classList.add("on");
+			var ipts = tbl.querySelectorAll(":scope input, select");
+			for(var i=0; i<ipts.length; i++){
+				var ipt = ipts.item(i);
+				if(ipt.type!="hidden"){
+					ipt.disabled = false;
+				}
+			}			
+		}
+	}
+	_my_o.regNew = function(btn){
+		var tbl = _list_bnd.querySelector(":scope>.tbl.on");
+		_cancel(tbl);
+		_edit(_addFst(null));
+	};
+	_my_o.edit = function(btn){
+		var tbl = _list_bnd.querySelector(":scope>.tbl.on");
+		_cancel(tbl);
+		_edit(btn._tbl);
+	};
+	_my_o.save = function(btn){
+		var obj = {};
+
+		var tbl = btn._tbl;
+		var iptid = tbl.querySelector(":scope input[name=objid]");
+		var ipts = tbl.querySelectorAll(":scope input, select");
+		for(var i=0; i<ipts.length; i++){
+			var ipt = ipts.item(i);
+			if(ipt.name=="bankbook"){
+				if(ipt.value==""){
+					alert("결제계좌 입력");
+					ipt.focus();
+					return;
+				}				
+				obj[ipt.name] = ipt.value;
+			}else if(ipt.type=="text"){
+				var val = ipt.value.trim();
+				switch(ipt.name){
+				case "name":
+					if(val==""){
+						alert("이름 입력");
+						ipt.focus();
+						ipt.select();
+						return;
+					}
+					break;
+				case "number":
+					if(val==""){
+						alert("카드번호 입력");
+						ipt.focus();
+						ipt.select();
+						return;
+					}
+					var re = /^(?=.*\d)[\d -]+$/;
+					if(!re.test(val)){
+						alert("계좌번호 숫자 공백으로 입력");
+						ipt.focus();
+						ipt.select();
+						return;						
+					}
+					break;
+
+				case "payDay":
+				case "startDay":
+					var nVal = com_currencyToInt(val, -1);
+					if(nVal<1 || nVal>31){
+						alert("1~31사이의 정수로 입력");
+						ipt.select();
+						ipt.focus();
+						return;					
+					}
+					val = nVal + "";
+					break;
+				
+				case "issueDate":
+					if(val!="" && !com_chkIsDate(val)){
+						alert("개설일자 이상");
+						ipt.focus();
+						ipt.select();
+						return;						
+					}
+					break;
+				default:
+					break;
+				}
+
+				obj[ipt.name] = val;
+			}else if(ipt.type=="checkbox"){
+				obj[ipt.name] = ipt.checked;
+			}else{
+				obj[ipt.name] = ipt.value;
+			}
+		}
+		console.log(obj);
+		$.post( 
+			"save_prc.do" 
+		,	obj
+		,	function(data){
+				if(data.errcode){
+					alert(data.errmsg);
+				}else{
+					if(iptid.value==""){
+						iptid.value = data._id;
+
+						obj._id = data._id;
+					}
+					console.log(data);
+					tbl._obj = obj;
+					alert("저장되었습니다.");
+				}
+			}
+		,	"json"	
+		)
+
+
+	};
+	_my_o.cancel = function(btn){
+		_cancel(btn._tbl);
+	};
+
+	_my_o.checkMoney = function(ipt){
+		var val = ipt.value;
+		var nVal = com_currencyToInt(val, -1);
+		if(nVal>0) ipt.value = com_numberWithCommas(nVal);
+	};
+	return _my_o;
+})();
+/*
+var cardSchema = new Schema({
+    name: { type: String, required: true }
+    , number: { type: String, required: true, unique: true}
+    , payDay: { type: Number, required: true }
+    , startDay: { type: Number, required: true }
+    , bankbook: { type: Schema.ObjectId, ref: 'BankBook' }
+    , isUse: { type: Boolean, required: true, default: true } 
+    , isMine: { type: Boolean, required: true, default: true } 
+    , issueDate: Date
+    , desc : String
+    , regDate: { type: Date, required: true, default: Date.now }  
+    , modDate: Date
+});
+
+*/
+
+</script>
+
+</head>
+<body>
+	<div id="wrap">
+		<%- include("../inc/menu.ejs",{_isTopMenu:true, _menuDiv:"card"}) %>
+		<div style="margin:5px;text-align:right;">
+			<button onclick="my_o.regNew();">등록</button>
+		</div>
+		<table class="tbl" cellpadding="0" cellspacing="0">
+			<thead>
+				<tr>
+					<td class="td_name">이름</td>
+					<td class="td_number">카드번호</td>
+					<td class="td_payDay">결제일</td>
+					<td class="td_startDay">시작일</td>
+					<td class="td_bankbook">결제계좌</td>
+
+					<td class="td_isUse">사용</td>
+					<td class="td_isCheckCard">체•카</td>
+					<td class="td_issueDate">개설일자</td>
+					<td class="td_edit">편집</td>
+				</tr>
+			</thead>
+		</table>
+		<div id="list_bnd">
+		<table class="tbl" cellpadding="0" cellspacing="0">
+				<input type="hidden" name="objid"/>
+			<tbody>
+
+				<tr>
+					<td class="td_name"><input type="text" name="name" placeholder="이름" disabled="true" /></td>
+					<td class="td_number"><input type="text" name="number" placeholder="카드번호" disabled="true" /></td>
+					<td class="td_payDay"><input type="text" name="payDay" placeholder="결제일" disabled="true" /></td>
+					<td class="td_startDay"><input type="text" name="startDay" placeholder="시작일" disabled="true" /></td>
+					<td class="td_bankbook"><select name="bankbook" disabled="true" ></select></td>
+					
+					<td class="td_isUse"><input type="checkbox" name="isUse" disabled="true" checked="true" /></td>
+					<td class="td_isCheckCard"><input type="checkbox" name="isCheckCard" disabled="true" /></td>
+					<td class="td_issueDate"><input type="text" name="issueDate" placeholder="등록일" disabled="true" /></td>
+					<td class="td_edit" rowspan="2">
+						<button class="btn_edit" onclick="my_o.edit(this);">편집</button>
+						<button class="btn_save" onclick="my_o.save(this);">저장</button>
+						<button class="btn_cancel" onclick="my_o.cancel(this);">취소</button>
+					</td>
+				</tr>
+				<tr class="tr_desc">
+					<td colspan="8" class="td_desc">
+						<input type="text" name="desc" placeholder="설명" disabled="true" />
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		</div>
+
+	</div>
+</body>
+</html>

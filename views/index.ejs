@@ -1,0 +1,22 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<% include ./inc/header.ejs %>
+<style>
+#wrap{
+	height:100%;
+	display : flex;
+	align-items : center;
+	justify-content: center;
+}
+</style>
+</head>
+<body>
+	<div id="wrap">
+		<form name="f" method="post" action="/login.do">
+		<input type="password" name="pw"/>
+		<input type="submit" value="로긴"/>
+		</form>
+	</div>
+</body>
+</html>

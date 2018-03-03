@@ -1,0 +1,299 @@
+﻿<%
+	var curDate = new Date();
+	var curYYYY = curDate.getFullYear();
+	var curMM = curDate.getMonth() + 1;
+
+	var edate = query.edate;
+	var oEDate = new Date(edate);
+	if(oEDate=='Invalid Date'){
+		oEDate = new Date();
+	}
+	edate = util.toDateStr(oEDate);
+
+	var sdate = query.sdate;
+	var oSDate = new Date(sdate);
+	if(oSDate=='Invalid Date'){
+		oSDate = new Date(oEDate.getFullYear(), oEDate.getMonth(), 1);
+	}
+	sdate = util.toDateStr(oSDate);
+
+var max = 0;
+var sum_in = 0;
+var sum_out = 0;
+var sum_out_card = 0;
+var return_card = 0;
+var sum_in_trans = 0;
+var sum_out_trans = 0;
+var sum_in_forward = 0;
+var sum_out_forward = 0;
+
+for(var i=0; i<categories.length;i++){ 
+	var obj = categories[i];
+	max = Math.max(max, obj.in, obj.out, obj.out_card);
+	sum_in = sum_in + obj.in;
+	sum_out = sum_out + obj.out;
+	sum_out_card = sum_out_card + obj.out_card;
+
+	if(obj._id=="카드대금") return_card = obj.out;
+	else if(obj._id=="통장간 이체"){
+		sum_in_trans = obj.in;
+		sum_out_trans = obj.out;
+	}else if(obj._id=="이월"){
+		sum_in_forward = obj.in;
+		sum_out_forward = obj.out;
+	}
+
+}
+%>
+	<!DOCTYPE html>
+	<html>
+	<head>
+		<% include ../inc/header.ejs %>
+		<script type="text/javascript" src="/js/common.js"></script>
+		<script type="text/javascript" src="/js/jquery-3.2.1.min.js"></script>
+	</head>
+	<body>
+		<div id="wrap">
+			<%- include("../inc/menu.ejs",{_isTopMenu:true, _menuDiv:"inout_classfy"}) %>
+
+			<style>
+				.search {
+					font-size: 14px;
+					vertical-align: middle;
+				}
+
+					.search input {
+						font-size: 14px;
+						line-height: 22px;
+						height: 28px;
+						padding: 0px;
+						margin: 0px;
+						vertical-align: middle;
+					}
+
+					.search select {
+						font-size: 14px;
+						line-height: 22px;
+						height: 28px;
+						padding: 0px;
+						margin: 0px;
+						vertical-align: middle;
+					}
+			</style>
+			<form name="f" onsubmit="return false;">
+				<div class="search">
+					<select name="yyyy" onchange="_chgYYYYMM();">
+						<%for(var i=curYYYY-10; i<=curYYYY; i++){%>
+						<option value="<%=i%>" <%if(curYYYY==i){%>selected<%}%>><%=i%></option>
+						<%}%>
+					</select>
+					<select name="mm" onchange="_chgYYYYMM();">
+						<option value="">선택</option>
+						<option value="year">전체</option>
+						<%for(var i=1; i<=12; i++){%>
+						<option value="<%=i%>"><%=i%></option>
+						<%}%>
+					</select>
+					시작일 <input type="date" name="sdate" value="<%=sdate%>" />
+					~ 종료일 <input type="date" name="edate" value="<%=edate%>" />
+					<input type="button" value="검색" onclick="javascript:_do();" />
+				</div>
+			</form>
+		</div>
+		<script type="text/javascript">
+			function _toDateStr(date) {
+				var yyyy = date.getFullYear();
+				var mm = date.getMonth() + 1;
+				var date = date.getDate();
+				if (mm < 10) mm = '0' + mm;
+				if (date < 10) date = '0' + date;
+				return yyyy + "-" + mm + "-" + date;
+			}
+			function _chgYYYYMM() {
+				var yyyy = parseInt(document.f.yyyy.value);
+				var cdate = new Date();
+				var sdate, edate;
+				if (document.f.mm.value == "year") {
+					sdate = new Date(yyyy, 0, 1, 0, 0, 0);
+					if (sdate.getFullYear() == cdate.getFullYear()) edate = cdate;
+					else edate = new Date(yyyy, 12, 0, 11, 59, 59);
+				} else {
+					var mm = parseInt(document.f.mm.value);
+					if (mm <= 0) return;
+					sdate = new Date(yyyy, mm - 1, 1, 0, 0, 0);
+					if (sdate.getFullYear() == cdate.getFullYear() && sdate.getMonth() == cdate.getMonth()) edate = cdate;
+					else edate = new Date(yyyy, mm, 0, 11, 59, 59);
+
+
+				}
+				document.f.sdate.value = _toDateStr(sdate);
+				document.f.edate.value = _toDateStr(edate);
+				document.f.mm.selectedIndex = 0;
+			}
+
+			function _do() {
+				var sdate = new Date(document.f.sdate.value);
+				if (sdate == 'Invalid Date') {
+					alert("시작일 이상");
+					document.f.sdate.focus();
+					return;
+				}
+				var edate = new Date(document.f.edate.value);
+				if (edate == 'Invalid Date') {
+					alert("종료일 이상");
+					document.f.edate.focus();
+					return;
+				}
+
+				if (edate < sdate) {
+					alert("시작일>종료일 이상");
+					document.f.sdate.focus();
+					return;
+				}
+
+				document.f.submit();
+			}
+
+		</script>
+<style>
+	.tbl{
+		width : 100%;
+	}
+	.tbl td{
+		vertical-align:middle;
+		font-size:18px;
+	}
+		.tbl > thead td {
+			border-top :2px solid #000;
+			border-bottom: 2px solid #000;
+			font-weight:bold;
+			padding:2px 5px 2px 5px;
+		}
+
+		.tbl .category {
+			width: 150px;
+			text-align: right;
+			padding-right: 10px;
+		}
+		.tbl .currency {
+			width: 120px;
+			text-align: right;
+			padding-right:10px;
+		}
+
+		.tbl .brd_b{
+			border-bottom:1px solid #000;
+		}
+		.tbl .brd_r {
+			border-right: 1px solid #000;
+		}
+		.tbl .in {
+			background-color: #0094ff;
+			overflow-x: hidden;
+			color: #0000ff;
+		}
+		.tbl .currency.in {
+			background-color: transparent;
+			color: #0000ff;
+		}
+		.tbl .out {
+			background-color: #ff0000;
+			overflow-x: hidden;
+			color: #ff6a00;
+		}
+		.tbl .currency.out {
+			background-color: transparent;
+			color: #ff0000;
+		}
+		.tbl .out_card {
+			background-color: #00aa00;
+			overflow-x: hidden;
+			color: #00aa00;
+		}
+		.tbl .currency.out_card {
+			background-color: transparent;
+			color: #009900;
+		}
+
+span.money_bnd{
+	display: inline-block;
+		vertical-align: middle;
+		padding: 2px 5px 2px 5px;
+}
+</style>
+	<div onclick="javascript:_goto('');">
+		<div style="text-align:left;float:left;">
+			<span class="money_bnd" style="background-color:rgb(0, 128, 255);color:#fff;">입금 : <b><%=util.toCurrency(sum_in - sum_in_trans - sum_in_forward)%></b>원</span>
+
+			<span class="money_bnd" style="background-color:#f00;color:#fff">출금[현금] : <b><%=util.toCurrency(sum_out - sum_out_trans - sum_out_forward)%></b>원</span>
+			<span class="money_bnd" style="background-color:#009900;color:#fff">출금[카드] : <b><%=util.toCurrency(sum_out_card)%></b>원</span>
+			<span class="money_bnd" style="background-color:#990099;color:#fff">카드대금 : <b><%=util.toCurrency(return_card)%></b>원</span>
+		</div>
+		<div style="text-align:left;float:left;clear:both;margin:5px;">
+			<span style="border-bottom:1px solid #000;">
+				<span style="color:rgb(0, 128, 255);">입금</span> 
+					- 	(
+							<span style="color:#F00;">출금[현금]</span>
+						+	<span style="color:#090;">출금[카드]</span>
+						- 	<span style="color:#909;">카드대금</span>
+						) : <b><%=util.toCurrency(sum_in - (sum_out + sum_out_card - return_card))%></b>원
+			</span>&nbsp;&nbsp;
+			<span style="border-bottom:1px solid #000;">
+						<span style="color:rgb(0, 128, 255);">입금</span> 
+					-  <span style="color:#F00;">출금[현금]</span>
+					: <b><%=util.toCurrency(sum_in - sum_out)%></b>원
+			</span>
+		</div>
+	</div>
+
+		<table class="tbl" cellpadding="0" cellspacing="0">
+			<thead >
+				<tr>
+					<td class="category brd_r">분류</td>
+					<td class="graph brd_r">그래프</td>
+					<td class="currency">금액</td>
+				</tr>
+			</thead>
+			<tbody>
+				<%
+				for(var i=0; i<categories.length;i++){
+					if(categories[i]._id!="이월"){
+				%>
+					<tr style="cursor:pointer;" onclick="javascript:_goto('<%=categories[i]._id%>');">
+						<td rowspan="3" class="category brd_b brd_r"><%=categories[i]._id%></td>
+						<td class="graph brd_r"><div class="in" style="width:<%=100*categories[i].in/max%>%">&nbsp;</div></td>
+						<td class="currency in"><%=util.toCurrency(categories[i].in)%></td>
+					</tr>
+					<tr style="cursor:pointer;" onclick="javascript:_goto('<%=categories[i]._id%>');">
+						<td class="graph brd_r"><div class="out" style="width:<%=100*categories[i].out/max%>%">&nbsp;</div></td>
+						<td class="currency out"><%=util.toCurrency(categories[i].out)%></td>
+					</tr>
+					<tr style="cursor:pointer;" onclick="javascript:_goto('<%=categories[i]._id%>');">
+						<td class="graph brd_b brd_r"><div class="out_card" style="width:<%=100*categories[i].out_card/max%>%">&nbsp;</div></td>
+						<td class="currency brd_b out_card"><%=util.toCurrency(categories[i].out_card)%></td>
+					</tr>
+				<%
+					}
+				}
+				%>
+
+			</tbody>
+		</table>
+<form name="gotoFrm" action="/inout/" target="_blank">
+	<input type="hidden" name="sdate" value="<%=sdate%>" />
+	<input type="hidden" name="edate" value="<%=edate%>" />
+	<input type="hidden" name="category" />
+</form>
+<script>
+function _goto(category) {
+	var len = <%=categories.length %>;
+	if(len==0) return;
+	var gsWin = window.open('about:blank','inoutWin','width=1024,height=700');
+	var f = document.gotoFrm;
+	f.target = 'inoutWin';
+
+	f.category.value = category;
+	f.submit();
+}
+</script>
+</html>

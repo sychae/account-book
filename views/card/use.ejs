@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<% include ../inc/header.ejs %>
+<link rel="stylesheet" href="/css/card_use.css">
+<script type="text/javascript" src="/js/common.js"></script>
+<script type="text/javascript" src="/js/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="/js/card_use.js"></script>
+<script>
+	my_o.setCards(<%-JSON.stringify(_cards) %>);
+</script>
+</head>
+<body>
+	<div id="wrap">
+		<%- include("../inc/menu.ejs",{_isTopMenu:true, _menuDiv:"card_use"}) %>
+
+<%
+var _$curDate = new Date();
+var _$curYYYY = _$curDate.getFullYear();
+var _$yyyy = _util.nteInt(_query.yyyy, 0);
+if(_$yyyy<2017) _$yyyy = 2017;
+var _$mm = _util.nteInt(_query.mm, 0);
+if(_$mm==0){
+	_$mm =  _$curDate.getMonth() + 1;   //
+}
+%>
+<form name="f" onsubmit="return false;">
+<input type="hidden" name="startDay" value="" />
+		<div class="srchDiv">
+			<select name="card">
+				<option value="">선택</option>
+				<%for(var i=0;i<_cards.length;i++){ %>	
+					<option value="<%=_cards[i]._id%>" <%if(_cards[i]._id==_$yyyy){%>selected<%}%>><%=_cards[i].name%></option>
+				<% } %>
+			</select>
+			<select name="yyyy"><%for(var i=2017;i<Math.max(_$curYYYY+2, _$yyyy)+1;i++){ %>
+					<option value="<%=i%>" <%if(i==_$yyyy){%>selected<%}%>><%=i%></option>
+			<% } %></select>년
+			<select name="mm"><%for(var i=1;i<=12;i++){ %>
+				<option value="<%=i%>" <%if(i==_$mm){%>selected<%}%>><%=i%></option>
+			<% } %></select>월
+
+			<button onclick="my_o.doSearch();">검색</button>
+		</div>
+</form>
+		<table class="tbl" cellpadding="0" cellspacing="0">
+			<thead>
+				<tr>
+					<td class="count">순번</td>
+					<td class="issueDate">일자</td>
+					<td class="name">내용</td>
+					<td class="out">금액</td>
+					<td class="installment">회차/회차</td>
+					<td class="curOut">이달금액</td>
+					<td class="balance">잔여금액</td>
+				</tr>
+			</thead>
+			<tbody id="tbl_body">
+
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>

@@ -1,0 +1,1 @@
+powershell.exe get-content .\my.log -encoding utf8 -wait

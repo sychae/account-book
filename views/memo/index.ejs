@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<% include ../inc/header.ejs %>
+<script type="text/javascript" src="/js/common.js"></script>
+<script type="text/javascript" src="/js/jquery-3.2.1.min.js"></script>
+<style>
+</style>
+<script type="text/javascript">
+</script>
+
+
+</head>
+<body>
+	<div id="wrap">
+		<%- include("../inc/menu.ejs",{_isTopMenu:true, _menuDiv:"memo"}) %>
+		<div style="margin:5px;text-align:right;">
+			<button onclick="my_o.regNew();">등록</button>
+		</div>
+		<table class="tbl" cellpadding="0" cellspacing="0">
+			<thead>
+				<tr>
+					<td class="td_name">이름</td>
+
+				</tr>
+			</thead>
+		</table>
+		<div id="list_bnd">
+		<table class="tbl" cellpadding="0" cellspacing="0">
+				<input type="hidden" name="objid"/>
+			<tbody>
+
+				<tr>
+					<td class="td_name"><input type="text" name="name" placeholder="이름" disabled="true" /></td>
+					<td class="td_number"><input type="text" name="number" placeholder="카드번호" disabled="true" /></td>
+					<td class="td_payDay"><input type="text" name="payDay" placeholder="결제일" disabled="true" /></td>
+					<td class="td_startDay"><input type="text" name="startDay" placeholder="시작일" disabled="true" /></td>
+					<td class="td_bankbook"><select name="bankbook" disabled="true" ></select></td>
+					
+					<td class="td_isUse"><input type="checkbox" name="isUse" disabled="true" checked="true" /></td>
+					<td class="td_isCheckCard"><input type="checkbox" name="isCheckCard" disabled="true" /></td>
+					<td class="td_issueDate"><input type="text" name="issueDate" placeholder="등록일" disabled="true" /></td>
+					<td class="td_edit" rowspan="2">
+						<button class="btn_edit" onclick="my_o.edit(this);">편집</button>
+						<button class="btn_save" onclick="my_o.save(this);">저장</button>
+						<button class="btn_cancel" onclick="my_o.cancel(this);">취소</button>
+					</td>
+				</tr>
+				<tr class="tr_desc">
+					<td colspan="8" class="td_desc">
+						<input type="text" name="desc" placeholder="설명" disabled="true" />
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		</div>
+
+	</div>
+</body>
+</html>

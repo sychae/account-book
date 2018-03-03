@@ -1,0 +1,86 @@
+﻿#wrap {
+	height: 100%;
+	text-align: center;
+	padding:0px;
+}
+.srchDiv {
+	font-size: 16px;
+	vertical-align: middle;
+	text-align: center;
+	padding: 10px 20px;
+	line-height: 28px;
+}
+
+	.srchDiv select {
+		height: 28px;
+		line-height: 28px;
+		font-size: 16px;
+		vertical-align: middle;
+		padding: 0px;
+	}
+
+	.srchDiv button {
+		height: 28px;
+		line-height: 28px;
+		font-size: 16px;
+		vertical-align: middle;
+		padding: 0px;
+	}
+.tbl {
+	width: 100%;
+	font-size: 18px;
+}
+
+	.tbl > thead > tr > td {
+		border-top: 2px solid #000;
+		border-bottom: 2px solid #000;
+		font-weight: bold;
+	}
+
+	.tbl tr > td {
+		border-left: 1px solid #999;
+		border-bottom: 1px solid #999;
+		height:35px;
+		padding:0 5px;
+	}
+
+		.tbl tr > td:first-child {
+			border-left-width: 0px;
+		}
+	.tbl tr.brd_bold > td {
+		font-weight: bold;
+		color:#fff;
+		background-color: #f0f;
+		border-top: 2px solid #000;
+		border-bottom: 2px solid #000;
+	}
+
+	.tbl .count {
+		width: 50px;
+	}
+
+	.tbl .issueDate {
+		width: 115px;
+	}
+	.tbl .name {
+		text-align :left;
+	}
+
+	.tbl .out {
+		width: 160px;
+		text-align: right;
+	}
+
+	.tbl .installment {
+		width: 100px;
+	}
+
+	.tbl .curOut {
+		width: 160px;
+		text-align: right;
+	}
+
+	.tbl .balance {
+		width: 160px;
+		text-align: right;
+	}
